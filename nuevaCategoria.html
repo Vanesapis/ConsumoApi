@@ -44,21 +44,21 @@
                     </div>
                     <!--form mask ends-->
                 </div>
-            <br>
-            <div class="row">
-                <table class="table" id="tablaDatos">
-                    <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Nombre</th>
-                        <th colspan="2">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
+                <br>
+                <div class="row">
+                    <table class="table" id="tablaDatos">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Nombre</th>
+                                <th colspan="2">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
 
-                </tbody>
-                </table>
-            </div>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <!--form mask ends-->
@@ -73,48 +73,101 @@
     crossorigin="anonymous"></script>
 
 <script>
-    $(document).ready(        
+    var accion = "guardar";
+    $(document).ready(
 
         function () {
             //Traer los datos y poblar la tabla
-            
+
             cargarDatos();
             //enviar los datos al click del botón
             $("#enviar").click(function () {
                 event.preventDefault();
-                $.post('https://localhost:44369/api/CategoriaProductos', $("#form1").serialize()).
-                    done(function (data) {
-                        alert("Datos guardados XD");
+                if (accion === "guardar")
+                    $.post('https://localhost:44369/api/CategoriaProductos', $("#form1").serialize()).
+                        done(function (data) {
+                            alert("Datos guardados XD");
+                            cargarDatos();
+                        }).
+                        fail(function (data) {
+                            if (data.status == 409)
+                                alert("Registro duplicado");
+                            else
+                                alert("Ocurrió un error");
+                        });
+                else
+                {
+                    alert("Modificar");
+                    $.ajax({
+                    url: 'https://localhost:44369/api/CategoriaProductos',
+                    type: 'PUT',
+                    dataType: 'json',
+                    data: $("#form1").serialize(),
+                    success: function (data, textStatus, xhr) {
+                        alert("Datos modificados");
+                        $("#Id").val("");
+                        $("#Nombre").val("");
+                        $("#Id").attr("readonly", false);
                         cargarDatos();
-                    }).
-                    fail(function (data) {
-                        if (data.status == 409)
-                            alert("Registro duplicado");
-                        else
-                            alert("Ocurrió un error");
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert("Falló la modificación")
+                    }
                     });
+                    
+                }
+
             });
+
+
         });
 
-        function cargarDatos()
-        {
-            $('#tablaDatos > tbody').empty();
-            
-            $.get("https://localhost:44369/api/CategoriaProductos", 
-            function(data, status){
-                $.each(data, function(index, value) {
 
-                    var fila="<tr><td>" + value.Id + "</td><td>" + value.Nombre + "</td>" + 
-                        "<td><a href='#'>Modificar</a></td><td><a href='#'>Eliminar</a></td></tr>";
-                    
+    function cargarDatos() {
+        $('#tablaDatos > tbody').empty();
+
+        $.get("https://localhost:44369/api/CategoriaProductos",
+            function (data, status) {
+                $.each(data, function (index, value) {
+
+                    var fila = "<tr><td>" + value.Id + "</td><td>" + value.Nombre + "</td>" +
+                        "<td><a href='javascript:buscarMostrar(" + value.Id + ")'>Modificar</a></td><td><a href='javascript:Eliminar(" + value.Id + ")' >Eliminar</a></td></tr>";
+
                     $('#tablaDatos').append(fila);
-                    console.log(value.Id + "-" + value.Nombre);
-                    
-  
+
+
+
                 });
                 //alert("Data: " + data + "\nStatus: " + status);
             });
-        }
+    }
+
+    function Eliminar(id) {
+        $.ajax({
+            url: 'https://localhost:44369/api/CategoriaProductos/' + id,
+            type: 'DELETE',
+            success: function (result) {
+                alert("Datos eliminados");
+                cargarDatos();
+            },
+            error: function (data) {
+                console.log(data.responseJSON.Message);
+                alert(data.responseJSON.Message);
+                //alert(mensaje);
+            }
+        });
+    }
+
+    function buscarMostrar(id) {
+        $.get("https://localhost:44369/api/CategoriaProductos/" + id,
+            function (data, status) {
+                //alert("Data: " + data + "\nStatus: " + status);
+                $("#Id").val(data.Id);
+                $("#Nombre").val(data.Nombre.trim());
+                $("#Id").attr("readonly", true);
+                accion="modificar";
+            });
+    }
 </script>
 
 
