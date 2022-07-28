@@ -19,7 +19,7 @@
           <nav class="nav">
             <ul class="nav__wrapper">
               <li class="nav__item"><a href="nuevaCategoria.html">Categorias</a></li>
-              <li class="nav__item"><a href="nuevoProducto.html">Productos</a></li>
+              <li class="nav__item"><a href="#">Productos</a></li>
             </ul>
           </nav>
         </div>
@@ -31,17 +31,34 @@
                     <!--form mask starts-->
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="card-title">Formulario Ingreso Categoría</h4>
+                            <h4 class="card-title">Formulario Ingreso Producto</h4>
 
                             <form class="form1" id="form1">
 
                                 <div class="form-group">
-                                    <label>ID categoría:</label>
+                                    <label>ID Producto:</label>
                                     <input type="number" class="form-control" id="Id" name="Id">
                                 </div>
                                 <div class="form-group">
-                                    <label>Nombre categoría:</label>
+                                    <label>Nombre Producto:</label>
                                     <input type="text" class="form-control" id="Nombre" name="Nombre">
+                                </div>
+                                <div class="form-group">
+                                    <label>Descripción Producto:</label>
+                                    <input type="text" class="form-control" id="Descripción" name="Descripción">
+                                </div>                                <div class="form-group">
+                                    <label>Precio Producto:</label>
+                                    <input type="number" class="form-control" id="Precio" name="Precio">
+                                </div>                                <div class="form-group">
+                                    <label>Stock Producto:</label>
+                                    <input type="number" class="form-control" id="Stock" name="Stock">
+                                </div>                                <div class="form-group">
+                                    <label>Categoría:</label>
+                                    <select name="select">
+                                        <option value="value1">Value 1</option>
+                                        <option value="value2" selected>Value 2</option>
+                                        <option value="value3">Value 3</option>
+                                      </select>
                                 </div>
                                 <br>
                                 <div class="form-group row">
@@ -62,7 +79,9 @@
                             <tr>
                                 <th>Id</th>
                                 <th>Nombre</th>
-                                <th colspan="2">Acciones</th>
+                                <th>Descripción</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -88,14 +107,12 @@
     $(document).ready(
 
         function () {
-            //Traer los datos y poblar la tabla
-
             cargarDatos();
             //enviar los datos al click del botón
             $("#enviar").click(function () {
                 event.preventDefault();
                 if (accion === "guardar")
-                    $.post('https://localhost:44369/api/CategoriaProductos', $("#form1").serialize()).
+                    $.post('https://localhost:44369/api/Producto', $("#form1").serialize()).
                         done(function (data) {
                             alert("Datos guardados XD");
                             cargarDatos();
@@ -137,12 +154,11 @@
     function cargarDatos() {
         $('#tablaDatos > tbody').empty();
 
-        $.get("https://localhost:44369/api/CategoriaProductos",
+        $.get("https://localhost:44369/api/Productos",
             function (data, status) {
                 $.each(data, function (index, value) {
 
-                    var fila = "<tr><td>" + value.Id + "</td><td>" + value.Nombre + "</td>" +
-                        "<td><a href='javascript:buscarMostrar(" + value.Id + ")'>Modificar</a></td><td><a href='javascript:Eliminar(" + value.Id + ")' >Eliminar</a></td></tr>";
+                    var fila = "<tr><td>" + value.Id + "</td><td>" + value.Nombre + "</td>" + "<td>" + value.Descripcion + "</td>"  + "<td>" + value.Precio + "</td>"  + "<td>" + value.Stock + "</td>" + "<td>";
 
                     $('#tablaDatos').append(fila);
 
@@ -153,32 +169,6 @@
             });
     }
 
-    function Eliminar(id) {
-        $.ajax({
-            url: 'https://localhost:44369/api/CategoriaProductos/' + id,
-            type: 'DELETE',
-            success: function (result) {
-                alert("Datos eliminados");
-                cargarDatos();
-            },
-            error: function (data) {
-                console.log(data.responseJSON.Message);
-                alert(data.responseJSON.Message);
-                //alert(mensaje);
-            }
-        });
-    }
-
-    function buscarMostrar(id) {
-        $.get("https://localhost:44369/api/CategoriaProductos/" + id,
-            function (data, status) {
-                //alert("Data: " + data + "\nStatus: " + status);
-                $("#Id").val(data.Id);
-                $("#Nombre").val(data.Nombre.trim());
-                $("#Id").attr("readonly", true);
-                accion="modificar";
-            });
-    }
 </script>
 
 
